@@ -6,6 +6,7 @@ const config = {
   type: Phaser.AUTO,
   width: 256,
   height: 224,
+  zoom: 3,  
   scene: [PuzzleScene, MainScene]
 };
 

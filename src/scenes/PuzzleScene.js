@@ -84,7 +84,14 @@ class PuzzleScene extends Phaser.Scene {
         switch(direction) {
             case "Up":
                 newRow = this.cursorRow - 1;
-                newCol = this.cursorCol - 1;
+                if(this.cursorCol == 0) {
+                    break;
+                }
+                if (this.cursorCol == this.cursorRow * 2){
+                    newCol = this.cursorCol - 2; 
+                } else {
+                    newCol = this.cursorCol - 1; 
+                }
                 break;
             case "Down":
                 newRow = this.cursorRow + 1;

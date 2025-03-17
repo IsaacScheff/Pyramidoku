@@ -5,21 +5,20 @@ const Hieroglyphics = {
     BIRD: 'bird',
     AXE: 'axe',
 };
-
-let pyramidoku = [
-    [null],
-    [null, null, null],
-    [null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null, null, null, null]
-    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
-];
-
 class PuzzleScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PuzzleScene' });
+
+        this.pyramidoku = [
+            [null],
+            [null, null, null],
+            [null, null, null, null, null],
+            [null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+        ];
     }
 
     preload() {
@@ -72,6 +71,8 @@ class PuzzleScene extends Phaser.Scene {
             this.moveCursor("Down");
             this.placeCursor();
         }
+
+
     }
 
     moveCursor(direction) {
@@ -129,6 +130,7 @@ class PuzzleScene extends Phaser.Scene {
             y -= 6;
         }
         const glyph = this.add.image(x, y, tile);
+        this.pyramidoku[pyramidRow][pyramidCol] = tile;
     }
 
     setupControls() {

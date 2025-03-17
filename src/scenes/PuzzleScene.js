@@ -2,9 +2,8 @@ import Phaser from 'phaser';
 
 const BACKGROUND_COLOR = "ac7c00"
 const Hieroglyphics = {
-    DANCER: 'dancer',
-    EYE: 'eye',
     BIRD: 'bird',
+    AXE: 'axe',
 };
 
 let pyramidoku = [
@@ -25,6 +24,8 @@ class PuzzleScene extends Phaser.Scene {
 
     preload() {
         this.load.image('PyramidBackground', 'assets/images/PyramidokuPuzzleBackground.png');
+        this.load.image('axe', 'assets/images/Axe.png');
+        this.load.image('bird', 'assets/images/GlossyIbis.png');
         this.load.spritesheet('AnimatedCursor', 'assets/images/PyramidokuCursor.png', { frameWidth: 8, frameHeight: 16 });
     }
 
@@ -48,29 +49,26 @@ class PuzzleScene extends Phaser.Scene {
             this.cursorRow * 32,
             'AnimatedCursor' 
         );
-
         this.cursor.play("AnimatedCursor", true);
         this.placeCursor();
 
-        this.cursors = this.input.keyboard.createCursorKeys();
+        this.setupControls();
 
-        this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);  
-        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-        this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        this.placeTile(4, 4, Hieroglyphics.BIRD);
+        this.placeTile(1, 7, Hieroglyphics.AXE);
     }
 
     update() {
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keyA)) {
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keys.left)) {
             this.moveCursor("Left");
             this.placeCursor();
-        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keyD)) {  
+        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keys.right)) {  
             this.moveCursor("Right");
             this.placeCursor();
-        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.keyW)) {
+        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.keys.up)) {
             this.moveCursor("Up");
             this.placeCursor();
-        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keyS)) {
+        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keys.down)) {
             this.moveCursor("Down");
             this.placeCursor();
         }
@@ -122,6 +120,27 @@ class PuzzleScene extends Phaser.Scene {
             y -= 6;
         }
         this.cursor.y = y;
+    }
+
+    placeTile(pyramidCol, pyramidRow, tile) {
+        const x = 128 + (pyramidCol * 12) - (pyramidRow * 12);
+        let y = 36 + (pyramidRow * 23);
+        if (pyramidCol % 2 != 0) {
+            y -= 6;
+        }
+        const glyph = this.add.image(x, y, tile);
+    }
+
+    setupControls() {
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keys = {
+            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
+            B: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H)
+        };
     }
 }
 

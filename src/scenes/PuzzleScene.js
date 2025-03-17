@@ -4,11 +4,17 @@ const BACKGROUND_COLOR = "ac7c00"
 const Hieroglyphics = {
     BIRD: 'bird',
     AXE: 'axe',
+    FISH: 'fish',
+    AXE: 'axe',
+    ARROW: 'arrow',
+    BOTTLE: 'bottle'
 };
 class PuzzleScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PuzzleScene' });
 
+        this.selectedTile = null;
+        this.selectedGlyph = null;
         this.pyramidoku = [
             [null],
             [null, null, null],
@@ -70,6 +76,15 @@ class PuzzleScene extends Phaser.Scene {
         } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.keys.down)) {
             this.moveCursor("Down");
             this.placeCursor();
+        }
+
+        if(Phaser.Input.Keyboard.JustDown(this.keys.A)) {
+            if(this.selectedGlyph == null) {
+                this.selectedTile = [this.cursorRow, this.cursorCol];
+                this.selectedGlyph = this.pyramidoku[this.cursorRow][this.cursorCol];
+            } else {
+                this.tileSwap();
+            }
         }
 
 
@@ -143,6 +158,13 @@ class PuzzleScene extends Phaser.Scene {
             A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
             B: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H)
         };
+    }
+
+    tileSwap() {
+        this.pyramidoku[this.cursorRow][this.cursorCol] = this.selectedGlyph;
+        this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph);
+        this.selectedTile = null;
+        this.selectedGlyph = null;
     }
 }
 

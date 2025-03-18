@@ -5,9 +5,11 @@ const Hieroglyphics = {
     BIRD: 'bird',
     AXE: 'axe',
     FISH: 'fish',
-    AXE: 'axe',
     ARROW: 'arrow',
-    BOTTLE: 'bottle'
+    BOTTLE: 'bottle',
+    ANKH: 'ankh',
+    MAN: 'man',
+    EYE: 'eye'
 };
 class PuzzleScene extends Phaser.Scene {
     constructor() {
@@ -145,7 +147,7 @@ class PuzzleScene extends Phaser.Scene {
             y -= 6;
         }
         const glyph = this.add.image(x, y, tile);
-        this.pyramidoku[pyramidRow][pyramidCol] = tile;
+        this.pyramidoku[pyramidRow][pyramidCol] = glyph;
     }
 
     setupControls() {
@@ -161,8 +163,11 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     tileSwap() {
+        if(this.pyramidoku[this.cursorRow][this.cursorCol] != null){
+            this.pyramidoku[this.cursorRow][this.cursorCol].destroy();
+        }
         this.pyramidoku[this.cursorRow][this.cursorCol] = this.selectedGlyph;
-        this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph);
+        this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph.texture.key);
         this.selectedTile = null;
         this.selectedGlyph = null;
     }

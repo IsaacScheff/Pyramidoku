@@ -183,6 +183,7 @@ class PuzzleScene extends Phaser.Scene {
         }
         this.selectedTile = null;
         this.selectedGlyph = null;
+        this.checkPuzzleSolution();
     }
 
     areTilesAdjacent(row1, col1, row2, col2) {
@@ -238,6 +239,51 @@ class PuzzleScene extends Phaser.Scene {
                 }
             }
         }
+    }
+    checkPuzzleSolution() {
+        for (let row = 0; row < this.pyramidoku.length; row++) {
+            for (let col = 0; col < this.pyramidoku[row].length; col++) {
+                const currentGlyph = this.pyramidoku[row][col];
+                if (currentGlyph !== null) {
+                    const currentGlyphKey = currentGlyph.texture.key;
+    
+                    const adjacentPositions = [
+                        { row, col: col - 1 }, 
+                        { row, col: col + 1 },
+                    ];
+    
+                    // Add below adjacency for even-numbered columns
+                    if (col % 2 === 0) {
+                        adjacentPositions.push({ row: row + 1, col: col + 1 }); // Below
+                    }
+    
+                    // Add above adjacency for odd-numbered columns
+                    if (col % 2 === 1 && row > 0) {
+                        adjacentPositions.push({ row: row - 1, col: col - 1 }); // Above
+                    }
+    
+                    for (const pos of adjacentPositions) {
+                        if (
+                            pos.row >= 0 &&
+                            pos.row < this.pyramidoku.length &&
+                            pos.col >= 0 &&
+                            pos.col < this.pyramidoku[pos.row].length
+                        ) {
+                            const adjacentGlyph = this.pyramidoku[pos.row][pos.col];
+                            if (
+                                adjacentGlyph !== null &&
+                                adjacentGlyph.texture.key === currentGlyphKey
+                            ) {
+                                console.log(adjacentGlyph);
+                                return false; // Found a matching adjacent glyph
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        console.log("SOLVED!!!!");
+        return true; // No matching adjacent glyphs found in the entire puzzle
     }
 }
 

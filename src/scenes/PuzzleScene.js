@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 const BACKGROUND_COLOR = "ac7c00"
-const Hieroglyphics = {
+const Hieroglyphs = {
     BIRD: 'bird',
     AXE: 'axe',
     HEART: 'heart',
@@ -67,14 +67,14 @@ class PuzzleScene extends Phaser.Scene {
 
         this.setupControls();
 
-        this.placeTile(4, 4, Hieroglyphics.BIRD);
-        this.placeTile(1, 7, Hieroglyphics.AXE);
-        this.placeTile(0, 0, Hieroglyphics.ANKH);
-        this.placeTile(3, 3, Hieroglyphics.HEART);
-        this.placeTile(9, 6, Hieroglyphics.EYE);
-        this.placeTile(8, 6, Hieroglyphics.MAN);
-        this.placeTile(1, 2, Hieroglyphics.CAT);
-        this.placeTile(2, 4, Hieroglyphics.SCARAB);
+        this.placeTile(4, 4, Hieroglyphs.BIRD);
+        this.placeTile(1, 7, Hieroglyphs.AXE);
+        this.placeTile(0, 0, Hieroglyphs.ANKH);
+        this.placeTile(3, 3, Hieroglyphs.HEART);
+        this.placeTile(9, 6, Hieroglyphs.EYE);
+        this.placeTile(8, 6, Hieroglyphs.MAN);
+        this.placeTile(1, 2, Hieroglyphs.CAT);
+        this.placeTile(2, 4, Hieroglyphs.SCARAB);
     }
 
     update() {

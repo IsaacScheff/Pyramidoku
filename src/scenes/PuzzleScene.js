@@ -67,14 +67,9 @@ class PuzzleScene extends Phaser.Scene {
 
         this.setupControls();
 
-        this.placeTile(4, 4, Hieroglyphs.BIRD);
-        this.placeTile(1, 7, Hieroglyphs.AXE);
-        this.placeTile(0, 0, Hieroglyphs.ANKH);
-        this.placeTile(3, 3, Hieroglyphs.HEART);
-        this.placeTile(9, 6, Hieroglyphs.EYE);
-        this.placeTile(8, 6, Hieroglyphs.MAN);
-        this.placeTile(1, 2, Hieroglyphs.CAT);
-        this.placeTile(2, 4, Hieroglyphs.SCARAB);
+        this.fillPyramidRandomly();
+        console.log(this.pyramidoku);
+        this.renderPyramid();
     }
 
     update() {
@@ -208,6 +203,41 @@ class PuzzleScene extends Phaser.Scene {
             return true;
         }
         return false;
+    }
+
+    fillPyramidRandomly() {
+        const glyphPool = [];
+        for (const glyph of Object.values(Hieroglyphs)) {
+            for (let i = 0; i < 8; i++) {
+                glyphPool.push(glyph);
+            }
+        }
+
+        for (let i = glyphPool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [glyphPool[i], glyphPool[j]] = [glyphPool[j], glyphPool[i]]; // Swap elements
+        }
+    
+        let poolIndex = 0;
+        for (let row = 0; row < this.pyramidoku.length; row++) {
+            for (let col = 0; col < this.pyramidoku[row].length; col++) {
+                if (this.pyramidoku[row][col] === null) {
+                    this.pyramidoku[row][col] = glyphPool[poolIndex];
+                    poolIndex++;
+                }
+            }
+        }
+    }
+
+    renderPyramid() {
+        for (let row = 0; row < this.pyramidoku.length; row++) {
+            for (let col = 0; col < this.pyramidoku[row].length; col++) {
+                const glyph = this.pyramidoku[row][col];
+                if (glyph !== null) {
+                    this.placeTile(col, row, glyph);
+                }
+            }
+        }
     }
 }
 

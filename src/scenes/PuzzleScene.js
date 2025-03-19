@@ -30,6 +30,8 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.bitmapFont('pixelFont', 'assets/font/pixel_font.png', 'assets/font/pixel.xml');
+
         this.load.spritesheet('PyramidSolved', 'assets/images/PyramidokuPuzzleSolved.png', { frameWidth: 192, frameHeight: 192 });
         this.load.image('axe', 'assets/images/Axe.png');
         this.load.image('bird', 'assets/images/GlossyIbis.png');
@@ -77,8 +79,9 @@ class PuzzleScene extends Phaser.Scene {
         this.setupControls();
 
         this.fillPyramidRandomly();
-        console.log(this.pyramidoku);
         this.renderPyramid();
+
+        this.add.bitmapText(50, 50, 'pixelFont', 'Moves: ', 8);
     }
 
     update() {
@@ -283,7 +286,6 @@ class PuzzleScene extends Phaser.Scene {
                                 adjacentGlyph !== null &&
                                 adjacentGlyph.texture.key === currentGlyphKey
                             ) {
-                                console.log(adjacentGlyph);
                                 return false; // Found a matching adjacent glyph
                             }
                         }

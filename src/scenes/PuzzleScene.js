@@ -4,7 +4,7 @@ const BACKGROUND_COLOR = "ac7c00"
 const Hieroglyphics = {
     BIRD: 'bird',
     AXE: 'axe',
-    FISH: 'fish',
+    HEART: 'heart',
     ARROW: 'arrow',
     BOTTLE: 'bottle',
     ANKH: 'ankh',
@@ -33,6 +33,10 @@ class PuzzleScene extends Phaser.Scene {
         this.load.image('PyramidBackground', 'assets/images/PyramidokuPuzzleBackground.png');
         this.load.image('axe', 'assets/images/Axe.png');
         this.load.image('bird', 'assets/images/GlossyIbis.png');
+        this.load.image('eye', 'assets/images/Eye.png');
+        this.load.image('ankh', 'assets/images/Ankh.png');
+        this.load.image('heart', 'assets/images/Heart.png');
+        this.load.image('man', 'assets/images/Man.png');
         this.load.spritesheet('AnimatedCursor', 'assets/images/PyramidokuCursor.png', { frameWidth: 8, frameHeight: 16 });
     }
 
@@ -63,6 +67,10 @@ class PuzzleScene extends Phaser.Scene {
 
         this.placeTile(4, 4, Hieroglyphics.BIRD);
         this.placeTile(1, 7, Hieroglyphics.AXE);
+        this.placeTile(0, 0, Hieroglyphics.ANKH);
+        this.placeTile(3, 3, Hieroglyphics.HEART);
+        this.placeTile(9, 6, Hieroglyphics.EYE);
+        this.placeTile(8, 6, Hieroglyphics.MAN);
     }
 
     update() {
@@ -163,10 +171,14 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     tileSwap() {
+        this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]].destroy();
+        this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]] = null;
+
         if(this.pyramidoku[this.cursorRow][this.cursorCol] != null){
+            this.placeTile(this.selectedTile[1], this.selectedTile[0], this.pyramidoku[this.cursorRow][this.cursorCol].texture.key);
             this.pyramidoku[this.cursorRow][this.cursorCol].destroy();
         }
-        this.pyramidoku[this.cursorRow][this.cursorCol] = this.selectedGlyph;
+
         this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph.texture.key);
         this.selectedTile = null;
         this.selectedGlyph = null;

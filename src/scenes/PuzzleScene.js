@@ -171,17 +171,39 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     tileSwap() {
-        this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]].destroy();
-        this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]] = null;
+        if(this.areTilesAdjacent(this.selectedTile[0], this.selectedTile[1], this.cursorRow, this.cursorCol)){
+            this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]].destroy();
+            this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]] = null;
 
-        if(this.pyramidoku[this.cursorRow][this.cursorCol] != null){
-            this.placeTile(this.selectedTile[1], this.selectedTile[0], this.pyramidoku[this.cursorRow][this.cursorCol].texture.key);
-            this.pyramidoku[this.cursorRow][this.cursorCol].destroy();
+            if(this.pyramidoku[this.cursorRow][this.cursorCol] != null){
+                this.placeTile(this.selectedTile[1], this.selectedTile[0], this.pyramidoku[this.cursorRow][this.cursorCol].texture.key);
+                this.pyramidoku[this.cursorRow][this.cursorCol].destroy();
+            }
+
+            this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph.texture.key);
         }
-
-        this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph.texture.key);
         this.selectedTile = null;
         this.selectedGlyph = null;
+    }
+
+    areTilesAdjacent(row1, col1, row2, col2) {
+        // Check if the tiles are the same
+        if (row1 === row2 && col1 === col2) {
+            return false;
+        }
+        // Check left and right adjacency
+        if (row1 === row2 && (col1 === col2 - 1 || col1 === col2 + 1)) {
+            return true;
+        }
+        // Check below adjacency (for odd-numbered columns)
+        if (col1 % 2 === 1 && row1 === row2 + 1 && col1 === col2 + 1) {
+            return true;
+        }
+        // Check above adjacency (for even-numbered columns)
+        if (col1 % 2 === 0 && row1 === row2 - 1 && col1 === col2 - 1) {
+            return true;
+        }
+        return false;
     }
 }
 

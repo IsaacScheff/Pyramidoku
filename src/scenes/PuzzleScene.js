@@ -27,6 +27,7 @@ class PuzzleScene extends Phaser.Scene {
             [null, null, null, null, null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
         ];
+        this.numberOfMoves = 0;
     }
 
     preload() {
@@ -81,7 +82,7 @@ class PuzzleScene extends Phaser.Scene {
         this.fillPyramidRandomly();
         this.renderPyramid();
 
-        this.add.bitmapText(50, 50, 'pixelFont', 'Moves: ', 8);
+        this.moveTrackerText = this.add.bitmapText(10, 30, 'pixelFont', 'Moves: 0', 8);
     }
 
     update() {
@@ -195,6 +196,8 @@ class PuzzleScene extends Phaser.Scene {
         }
         this.selectedTile = null;
         this.selectedGlyph = null;
+        this.numberOfMoves++;
+        this.moveTrackerText.text = `Moves: ${this.numberOfMoves}`;
         this.checkPuzzleSolution();
     }
 

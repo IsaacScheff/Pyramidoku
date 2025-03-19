@@ -48,8 +48,8 @@ class PuzzleScene extends Phaser.Scene {
     create() {
         this.pyramid = this.add.sprite(128, 110, 'PyramidSolved');
         this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
-        this.cursorCol = 7;
-        this.cursorRow = 6;
+        this.cursorCol = 4;
+        this.cursorRow = 4;
 
         if (!this.anims.exists('AnimatedCursor')) {
             this.anims.create({
@@ -107,8 +107,16 @@ class PuzzleScene extends Phaser.Scene {
             } else {
                 this.tileSwap();
             }
+        } 
+        if(Phaser.Input.Keyboard.JustDown(this.keys.B)) {
+            if(this.selectedGlyph == null) {
+                this.rotateRow();
+            } else {
+                this.selectedGlyph = null;
+                this.selectedTile = null;
+            }
         }
-
+            
 
     }
 
@@ -196,9 +204,7 @@ class PuzzleScene extends Phaser.Scene {
         }
         this.selectedTile = null;
         this.selectedGlyph = null;
-        this.numberOfMoves++;
-        this.moveTrackerText.text = `Moves: ${this.numberOfMoves}`;
-        this.checkPuzzleSolution();
+        this.incrementMoveNumber();
     }
 
     areTilesAdjacent(row1, col1, row2, col2) {
@@ -296,9 +302,29 @@ class PuzzleScene extends Phaser.Scene {
                 }
             }
         }
-        console.log("SOLVED!!!!");
         this.pyramid.play("AnimatedPyramid", true);
         return true; // No matching adjacent glyphs found in the entire puzzle
+    }
+
+    rotateRow() {
+        const lastIndex = this.pyramidoku[this.cursorRow].length - 1;
+        const lastGlyph = this.pyramidoku[this.cursorRow][lastIndex];
+
+        for(let i = lastIndex; i > 0; i--) {
+            this.pyramidoku[this.cursorRow][i].destroy();
+            this.placeTile(i, this.cursorRow, this.pyramidoku[this.cursorRow][i - 1].texture.key);
+        }
+
+        this.pyramidoku[this.cursorRow][0].destroy();
+        this.placeTile(0, this.cursorRow, lastGlyph.texture.key);
+        
+        this.incrementMoveNumber();
+    }
+
+    incrementMoveNumber() {
+        this.numberOfMoves++;
+        this.moveTrackerText.text = `Moves: ${this.numberOfMoves}`;
+        this.checkPuzzleSolution();
     }
 }
 

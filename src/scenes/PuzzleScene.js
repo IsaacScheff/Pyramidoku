@@ -30,7 +30,7 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('PyramidBackground', 'assets/images/PyramidokuPuzzleBackground.png');
+        this.load.spritesheet('PyramidSolved', 'assets/images/PyramidokuPuzzleSolved.png', { frameWidth: 192, frameHeight: 192 });
         this.load.image('axe', 'assets/images/Axe.png');
         this.load.image('bird', 'assets/images/GlossyIbis.png');
         this.load.image('eye', 'assets/images/Eye.png');
@@ -43,7 +43,7 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     create() {
-        this.add.image(128, 110, 'PyramidBackground');
+        this.pyramid = this.add.sprite(128, 110, 'PyramidSolved');
         this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
         this.cursorCol = 7;
         this.cursorRow = 6;
@@ -54,6 +54,15 @@ class PuzzleScene extends Phaser.Scene {
                 frames: this.anims.generateFrameNumbers('AnimatedCursor', { start: 0, end: 3 }),
                 frameRate: 10,
                 repeat: -1
+            });
+        };
+
+        if (!this.anims.exists('AnimatedPyramid')) {
+            this.anims.create({
+                key: 'AnimatedPyramid',
+                frames: this.anims.generateFrameNumbers('PyramidSolved', { start: 0, end: 27 }),
+                frameRate: 10,
+                repeat: 0
             });
         };
 
@@ -283,6 +292,7 @@ class PuzzleScene extends Phaser.Scene {
             }
         }
         console.log("SOLVED!!!!");
+        this.pyramid.play("AnimatedPyramid", true);
         return true; // No matching adjacent glyphs found in the entire puzzle
     }
 }

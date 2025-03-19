@@ -5,8 +5,8 @@ const Hieroglyphics = {
     BIRD: 'bird',
     AXE: 'axe',
     HEART: 'heart',
-    ARROW: 'arrow',
-    BOTTLE: 'bottle',
+    SCARAB: 'scarab',
+    CAT: 'cat',
     ANKH: 'ankh',
     MAN: 'man',
     EYE: 'eye'
@@ -37,6 +37,8 @@ class PuzzleScene extends Phaser.Scene {
         this.load.image('ankh', 'assets/images/Ankh.png');
         this.load.image('heart', 'assets/images/Heart.png');
         this.load.image('man', 'assets/images/Man.png');
+        this.load.image('scarab', 'assets/images/Scarab.png');
+        this.load.image('cat', 'assets/images/Cat.png');
         this.load.spritesheet('AnimatedCursor', 'assets/images/PyramidokuCursor.png', { frameWidth: 8, frameHeight: 16 });
     }
 
@@ -71,6 +73,8 @@ class PuzzleScene extends Phaser.Scene {
         this.placeTile(3, 3, Hieroglyphics.HEART);
         this.placeTile(9, 6, Hieroglyphics.EYE);
         this.placeTile(8, 6, Hieroglyphics.MAN);
+        this.placeTile(1, 2, Hieroglyphics.CAT);
+        this.placeTile(2, 4, Hieroglyphics.SCARAB);
     }
 
     update() {

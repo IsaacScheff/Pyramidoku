@@ -201,10 +201,10 @@ class PuzzleScene extends Phaser.Scene {
             }
 
             this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph.texture.key);
+            this.incrementMoveNumber();
         }
         this.selectedTile = null;
         this.selectedGlyph = null;
-        this.incrementMoveNumber();
     }
 
     areTilesAdjacent(row1, col1, row2, col2) {
@@ -261,7 +261,9 @@ class PuzzleScene extends Phaser.Scene {
             }
         }
     }
+
     checkPuzzleSolution() {
+        // Check for adjacent matching glyphs
         for (let row = 0; row < this.pyramidoku.length; row++) {
             for (let col = 0; col < this.pyramidoku[row].length; col++) {
                 const currentGlyph = this.pyramidoku[row][col];
@@ -269,18 +271,16 @@ class PuzzleScene extends Phaser.Scene {
                     const currentGlyphKey = currentGlyph.texture.key;
     
                     const adjacentPositions = [
-                        { row, col: col - 1 }, 
-                        { row, col: col + 1 },
+                        { row, col: col - 1 },
+                        { row, col: col + 1 }, 
                     ];
     
-                    // Add below adjacency for even-numbered columns
                     if (col % 2 === 0) {
-                        adjacentPositions.push({ row: row + 1, col: col + 1 }); // Below
+                        adjacentPositions.push({ row: row + 1, col: col + 1 });
                     }
     
-                    // Add above adjacency for odd-numbered columns
                     if (col % 2 === 1 && row > 0) {
-                        adjacentPositions.push({ row: row - 1, col: col - 1 }); // Above
+                        adjacentPositions.push({ row: row - 1, col: col - 1 });
                     }
     
                     for (const pos of adjacentPositions) {
@@ -302,8 +302,33 @@ class PuzzleScene extends Phaser.Scene {
                 }
             }
         }
+    
+        // Check glyph counts per row
+        for (let row = 0; row < this.pyramidoku.length; row++) {
+            const glyphCounts = {};
+    
+            for (let col = 0; col < this.pyramidoku[row].length; col++) {
+                const glyph = this.pyramidoku[row][col];
+                if (glyph !== null) {
+                    const glyphKey = glyph.texture.key;
+    
+                    if (glyphCounts[glyphKey]) {
+                        glyphCounts[glyphKey]++;
+                    } else {
+                        glyphCounts[glyphKey] = 1;
+                    }
+    
+                    const maxAllowed = (row < 4) ? 1 : 2; // Rows 0-4: max 1, rows 5-7: max 2
+                    if (glyphCounts[glyphKey] > maxAllowed) {
+                        console.log(row);
+                        return false; // Glyph count exceeds the limit
+                    }
+                }
+            }
+        }
+    
         this.pyramid.play("AnimatedPyramid", true);
-        return true; // No matching adjacent glyphs found in the entire puzzle
+        return true;
     }
 
     rotateRow() {

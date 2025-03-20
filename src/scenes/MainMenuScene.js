@@ -12,7 +12,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
         this.options = [
             this.add.bitmapText(40, 80, 'pixelFont', 'Pre-Made Puzzle', 8),
-            this.add.bitmapText(40, 105, 'pixelFont', 'Random Seed', 8),
+            this.add.bitmapText(40, 105, 'pixelFont', 'Random Puzzle', 8),
             this.add.bitmapText(40, 130, 'pixelFont', 'Input Seed', 8),
         ]
 
@@ -55,8 +55,19 @@ export default class MainMenuScene extends Phaser.Scene {
         switch(selectedOption) {
             case "Pre-Made Puzzle":
                 this.scene.start('PuzzleScene');
+                break;
             case "Random Seed":
-                this.scene.start('PuzzleScene');
+                const randomSeed = this.generateRandomSeed();
+                this.scene.start('PuzzleScene', { seed: randomSeed }); 
+                break;
+            case "Input Seed":
+                // display input interface
+                break;
         }
+    }
+
+    generateRandomSeed() {
+        // Generate a random 4-digit number (1000 to 9999)
+        return Math.floor(1000 + Math.random() * 9000);
     }
 }

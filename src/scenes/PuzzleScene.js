@@ -16,7 +16,7 @@ class PuzzleScene extends Phaser.Scene {
         super({ key: 'PuzzleScene' });
 
         this.seed = 0; // Default seed
-        this.random = this.seededRandom(this.seed); // Seeded random generator
+        this.random = this.seededRandom(this.seed);
 
         this.selectedTile = null;
         this.selectedGlyph = null;
@@ -32,6 +32,14 @@ class PuzzleScene extends Phaser.Scene {
         ];
         this.numberOfMoves = 0;
     }
+
+    init(data) {
+        // Override the default seed if a seed is provided
+        if (data.seed !== undefined) {
+            this.seed = data.seed;
+        }
+        this.random = this.seededRandom(this.seed);
+    }
     // Seeded random number generator (Linear Congruential Generator)
     seededRandom(seed) {
         let value = seed;
@@ -45,6 +53,7 @@ class PuzzleScene extends Phaser.Scene {
         this.seed = seed;
         this.random = this.seededRandom(seed);
     }
+
     preload() {
         this.load.bitmapFont('pixelFont', 'assets/font/pixel_font.png', 'assets/font/pixel.xml');
 
@@ -97,7 +106,8 @@ class PuzzleScene extends Phaser.Scene {
         this.fillPyramidRandomly();
         this.renderPyramid();
 
-        this.moveTrackerText = this.add.bitmapText(10, 30, 'pixelFont', 'Moves: 0', 8);
+        this.moveTrackerText = this.add.bitmapText(10, 20, 'pixelFont', 'Moves: 0', 8);
+        this.seedDisplayText = this.add.bitmapText(170, 20, 'pixelFont', `Seed#${this.seed}`, 8);
     }
 
     update() {
@@ -241,7 +251,7 @@ class PuzzleScene extends Phaser.Scene {
         }
         return false;
     }
-    
+
     fillPyramidRandomly() {
         const glyphPool = [];
         for (const glyph of Object.values(Hieroglyphs)) {
@@ -252,7 +262,7 @@ class PuzzleScene extends Phaser.Scene {
     
         // Shuffle the glyph pool using the seeded random generator
         for (let i = glyphPool.length - 1; i > 0; i--) {
-            const j = Math.floor(this.random() * (i + 1)); // Use this.random()
+            const j = Math.floor(this.random() * (i + 1));
             [glyphPool[i], glyphPool[j]] = [glyphPool[j], glyphPool[i]]; // Swap elements
         }
     

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import MainScene from './scenes/MainScene.js';
+import TitleScene from './scenes/TitleScene.js';
 import PuzzleScene from './scenes/PuzzleScene.js';
 
 const config = {
@@ -7,7 +7,7 @@ const config = {
   width: 256,
   height: 224,
   zoom: 3,  
-  scene: [PuzzleScene, MainScene]
+  scene: [TitleScene, PuzzleScene]
 };
 
 new Phaser.Game(config);

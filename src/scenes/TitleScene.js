@@ -17,7 +17,7 @@ export default class TitleScene extends Phaser.Scene {
         });
         this.startKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.startKey.on('down', () => {
-            this.scene.start('PuzzleScene');
+            this.scene.start('MainMenuScene');
         });
 
         this.add.bitmapText(this.scale.width / 2, 10, 'pixelFont', 'An Isaac Wolf Game', 8).setOrigin(0.5);

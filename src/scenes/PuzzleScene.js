@@ -15,6 +15,9 @@ class PuzzleScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PuzzleScene' });
 
+        this.seed = 0; // Default seed
+        this.random = this.seededRandom(this.seed); // Seeded random generator
+
         this.selectedTile = null;
         this.selectedGlyph = null;
         this.pyramidoku = [
@@ -29,7 +32,19 @@ class PuzzleScene extends Phaser.Scene {
         ];
         this.numberOfMoves = 0;
     }
+    // Seeded random number generator (Linear Congruential Generator)
+    seededRandom(seed) {
+        let value = seed;
+        return function() {
+            value = (value * 9301 + 49297) % 233280; // LCG parameters
+            return value / 233280; // Normalize to [0, 1)
+        };
+    }
 
+    setSeed(seed) {
+        this.seed = seed;
+        this.random = this.seededRandom(seed);
+    }
     preload() {
         this.load.bitmapFont('pixelFont', 'assets/font/pixel_font.png', 'assets/font/pixel.xml');
 
@@ -226,7 +241,7 @@ class PuzzleScene extends Phaser.Scene {
         }
         return false;
     }
-
+    
     fillPyramidRandomly() {
         const glyphPool = [];
         for (const glyph of Object.values(Hieroglyphs)) {
@@ -234,9 +249,10 @@ class PuzzleScene extends Phaser.Scene {
                 glyphPool.push(glyph);
             }
         }
-
+    
+        // Shuffle the glyph pool using the seeded random generator
         for (let i = glyphPool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+            const j = Math.floor(this.random() * (i + 1)); // Use this.random()
             [glyphPool[i], glyphPool[j]] = [glyphPool[j], glyphPool[i]]; // Swap elements
         }
     

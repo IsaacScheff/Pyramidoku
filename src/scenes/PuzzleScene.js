@@ -20,6 +20,8 @@ class PuzzleScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PuzzleScene' });
 
+        this.puzzleIsSolved = false;
+
         this.seed = 0; // Default seed
         this.random = this.seededRandom(this.seed);
 
@@ -97,7 +99,7 @@ class PuzzleScene extends Phaser.Scene {
         if (!this.anims.exists('AnimatedPyramid')) {
             this.anims.create({
                 key: 'AnimatedPyramid',
-                frames: this.anims.generateFrameNumbers('PyramidSolved', { start: 0, end: 27 }),
+                frames: this.anims.generateFrameNumbers('PyramidSolved', { start: 0, end: 28 }),
                 frameRate: 10,
                 repeat: 0
             });
@@ -228,6 +230,10 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     tileSwap() {
+        if(this.puzzleIsSolved){
+            return;
+        }
+        
         if(this.areTilesAdjacent(this.selectedTile[0], this.selectedTile[1], this.cursorRow, this.cursorCol)){
             this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]].destroy();
             this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]] = null;
@@ -364,12 +370,17 @@ class PuzzleScene extends Phaser.Scene {
                 }
             }
         }
-    
+        this.puzzleIsSolved = true;
+        this.clearSolvedHighlights();
         this.pyramid.play("AnimatedPyramid", true);
         return true;
     }
 
     rotateRow() {
+        if(this.puzzleIsSolved){
+            return;
+        }
+
         const lastIndex = this.pyramidoku[this.cursorRow].length - 1;
         const lastGlyph = this.pyramidoku[this.cursorRow][lastIndex];
 
@@ -392,6 +403,9 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     highlightAdjacentTiles(row, col) {
+        if(this.puzzleIsSolved){
+            return;
+        }
         this.clearAdjHighlights(); 
     
         const adjacentPositions = [
@@ -435,6 +449,9 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     highlightSolvedRows() {
+        if(this.puzzleIsSolved){
+            return;
+        }
         this.clearSolvedHighlights(); 
     
         for (let row = 0; row < this.pyramidoku.length; row++) {

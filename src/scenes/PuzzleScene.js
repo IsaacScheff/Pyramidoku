@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-//const BACKGROUND_COLOR = "ac7c00"
+const BACKGROUND_COLOR = "004858"
 const CURSOR_DEPTH = 4; 
 const TILE_DEPTH = 3;
 const ADJ_HIGHLIGHT_DEPTH = 2;
@@ -41,6 +41,19 @@ class PuzzleScene extends Phaser.Scene {
 
         this.adjHighlights = [];
         this.solvedHighlights = [];
+
+        this.glyphMoveCounts = {
+            [Hieroglyphs.BIRD]: 0,
+            [Hieroglyphs.AXE]: 0,
+            [Hieroglyphs.HEART]: 0,
+            [Hieroglyphs.SCARAB]: 0,
+            [Hieroglyphs.CAT]: 0,
+            [Hieroglyphs.ANKH]: 0,
+            [Hieroglyphs.MAN]: 0,
+            [Hieroglyphs.EYE]: 0,
+        };
+
+        this.glyphMoveCountTexts = {};
     }
 
     init(data) {
@@ -83,7 +96,7 @@ class PuzzleScene extends Phaser.Scene {
 
     create() {
         this.pyramid = this.add.sprite(128, 110, 'PyramidSolved');
-        //this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
+        this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
         this.cursorCol = 4;
         this.cursorRow = 4;
 
@@ -118,8 +131,10 @@ class PuzzleScene extends Phaser.Scene {
         this.fillPyramidRandomly();
         this.renderPyramid();
 
-        this.moveTrackerText = this.add.bitmapText(10, 20, 'pixelFont', 'Moves: 0', 8);
-        this.seedDisplayText = this.add.bitmapText(170, 20, 'pixelFont', `Seed#${this.seed}`, 8);
+        this.moveTrackerText = this.add.bitmapText(10, 10, 'pixelFont', 'Moves: 0', 8);
+        this.seedDisplayText = this.add.bitmapText(90, 210, 'pixelFont', `Seed#${this.seed}`, 8);
+
+        this.renderGlyphMoveCounters();
     }
 
     update() {
@@ -238,9 +253,17 @@ class PuzzleScene extends Phaser.Scene {
             this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]].destroy();
             this.pyramidoku[this.selectedTile[0]][this.selectedTile[1]] = null;
 
+            const selectedGlyphKey = this.selectedGlyph.texture.key;
+            this.glyphMoveCounts[selectedGlyphKey]++;
+            this.updateGlyphMoveCountText(selectedGlyphKey);
+
             if(this.pyramidoku[this.cursorRow][this.cursorCol] != null){
                 this.placeTile(this.selectedTile[1], this.selectedTile[0], this.pyramidoku[this.cursorRow][this.cursorCol].texture.key);
                 this.pyramidoku[this.cursorRow][this.cursorCol].destroy();
+                
+                const targetGlyphKey = this.pyramidoku[this.cursorRow][this.cursorCol].texture.key;
+                this.glyphMoveCounts[targetGlyphKey]++;
+                this.updateGlyphMoveCountText(targetGlyphKey);
             }
 
             this.placeTile(this.cursorCol, this.cursorRow, this.selectedGlyph.texture.key);
@@ -383,6 +406,16 @@ class PuzzleScene extends Phaser.Scene {
 
         const lastIndex = this.pyramidoku[this.cursorRow].length - 1;
         const lastGlyph = this.pyramidoku[this.cursorRow][lastIndex];
+
+         // Increment move count for all glyphs in the row
+        for (let col = 0; col < this.pyramidoku[this.cursorRow].length; col++) {
+            const glyph = this.pyramidoku[this.cursorRow][col];
+            if (glyph !== null) {
+                const glyphKey = glyph.texture.key;
+                this.glyphMoveCounts[glyphKey]++;
+                this.updateGlyphMoveCountText(glyphKey);
+            }
+        }
 
         for(let i = lastIndex; i > 0; i--) {
             this.pyramidoku[this.cursorRow][i].destroy();
@@ -546,6 +579,35 @@ class PuzzleScene extends Phaser.Scene {
             }
         });
         this.solvedHighlights = this.solvedHighlights.filter(highlight => highlight.texture.key !== 'solvedTile');
+    }
+
+    renderGlyphMoveCounters() {
+        const startX = 12; // X position for the counters
+        const startY = 30;  // Y position for the counters
+        const spacing = 18; // Vertical spacing between counters
+    
+        Object.entries(Hieroglyphs).forEach(([glyphName, glyphKey], index) => {
+            // Render the glyph image
+            const glyphImage = this.add.image(startX, startY + index * spacing, glyphKey);
+    
+            // Render the move count text
+            const moveCountText = this.add.bitmapText(
+                startX + 10, // Offset to the right of the glyph image
+                startY + index * spacing - 5, // Align with the glyph image
+                'pixelFont',
+                `${this.glyphMoveCounts[glyphKey]}`,
+                8
+            );
+    
+            // Store the reference to the move count text
+            this.glyphMoveCountTexts[glyphKey] = moveCountText;
+        });
+    }
+
+    updateGlyphMoveCountText(glyphKey) {
+        if (this.glyphMoveCountTexts[glyphKey]) {
+            this.glyphMoveCountTexts[glyphKey].text = `${this.glyphMoveCounts[glyphKey]}`;
+        }
     }
 }
 

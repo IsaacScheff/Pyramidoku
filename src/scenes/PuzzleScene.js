@@ -1,7 +1,12 @@
 import Phaser from 'phaser';
 
-const BACKGROUND_COLOR = "ac7c00"
-const Hieroglyphs = {
+//const BACKGROUND_COLOR = "ac7c00"
+const CURSOR_DEPTH = 4; 
+const TILE_DEPTH = 3;
+const ADJ_HIGHLIGHT_DEPTH = 2;
+const SOLVED_HIGHLIGHT_DEPTH = 1;
+
+const Hieroglyphs = { 
     BIRD: 'bird',
     AXE: 'axe',
     HEART: 'heart',
@@ -31,6 +36,8 @@ class PuzzleScene extends Phaser.Scene {
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
         ];
         this.numberOfMoves = 0;
+
+        this.highlights = [];
     }
 
     init(data) {
@@ -58,6 +65,8 @@ class PuzzleScene extends Phaser.Scene {
         this.load.bitmapFont('pixelFont', 'assets/font/pixel_font.png', 'assets/font/pixel.xml');
 
         this.load.spritesheet('PyramidSolved', 'assets/images/PyramidokuPuzzleSolved.png', { frameWidth: 192, frameHeight: 192 });
+        this.load.image('solvedTile', 'assets/images/pyramidokuSolvedTriangle.png');
+        this.load.image('adjTile', 'assets/images/pyramidokuAdjTriangle.png');
         this.load.image('axe', 'assets/images/Axe.png');
         this.load.image('bird', 'assets/images/GlossyIbis.png');
         this.load.image('eye', 'assets/images/Eye.png');
@@ -71,7 +80,7 @@ class PuzzleScene extends Phaser.Scene {
 
     create() {
         this.pyramid = this.add.sprite(128, 110, 'PyramidSolved');
-        this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
+        //this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
         this.cursorCol = 4;
         this.cursorRow = 4;
 
@@ -97,7 +106,7 @@ class PuzzleScene extends Phaser.Scene {
             this.cursorCol * 32,
             this.cursorRow * 32,
             'AnimatedCursor' 
-        );
+        ).setDepth(CURSOR_DEPTH);
         this.cursor.play("AnimatedCursor", true);
         this.placeCursor();
 
@@ -129,20 +138,22 @@ class PuzzleScene extends Phaser.Scene {
             if(this.selectedGlyph == null) {
                 this.selectedTile = [this.cursorRow, this.cursorCol];
                 this.selectedGlyph = this.pyramidoku[this.cursorRow][this.cursorCol];
+                this.highlightAdjacentTiles(this.cursorRow, this.cursorCol); 
             } else {
                 this.tileSwap();
+                this.clearHighlights(); 
             }
         } 
+
         if(Phaser.Input.Keyboard.JustDown(this.keys.B)) {
             if(this.selectedGlyph == null) {
                 this.rotateRow();
             } else {
                 this.selectedGlyph = null;
                 this.selectedTile = null;
+                this.clearHighlights(); 
             }
-        }
-            
-
+        }    
     }
 
     moveCursor(direction) {
@@ -199,7 +210,7 @@ class PuzzleScene extends Phaser.Scene {
         if (pyramidCol % 2 != 0) {
             y -= 6;
         }
-        const glyph = this.add.image(x, y, tile);
+        const glyph = this.add.image(x, y, tile).setDepth(TILE_DEPTH);
         this.pyramidoku[pyramidRow][pyramidCol] = glyph;
     }
 
@@ -376,6 +387,49 @@ class PuzzleScene extends Phaser.Scene {
         this.numberOfMoves++;
         this.moveTrackerText.text = `Moves: ${this.numberOfMoves}`;
         this.checkPuzzleSolution();
+    }
+
+    highlightAdjacentTiles(row, col) {
+        this.clearHighlights(); 
+    
+        const adjacentPositions = [
+            { row, col: col - 1 }, // Left
+            { row, col: col + 1 }, // Right
+        ];
+
+        let isEven = false;
+        if (col % 2 === 0) {
+            adjacentPositions.push({ row: row + 1, col: col + 1 }); // Below (for even columns)
+            isEven = true;
+        } else if (row > 0) {
+            adjacentPositions.push({ row: row - 1, col: col - 1 }); // Above (for odd columns)
+        }
+    
+        adjacentPositions.forEach(pos => {
+            if (
+                pos.row >= 0 &&
+                pos.row < this.pyramidoku.length &&
+                pos.col >= 0 &&
+                pos.col < this.pyramidoku[pos.row].length
+            ) {
+                const x = 128 + (pos.col * 12) - (pos.row * 12);
+                let y = 33 + (pos.row * 23);
+                if (pos.col % 2 !== 0) {
+                    y -= 6;
+                }
+                const highlight = this.add.image(x, y, 'adjTile').setDepth(ADJ_HIGHLIGHT_DEPTH);
+                if(isEven){
+                    highlight.scaleY = -1;
+                    highlight.y += 6;
+                }
+                this.highlights.push(highlight); 
+            }
+        });
+    }
+
+    clearHighlights() {
+        this.highlights.forEach(highlight => highlight.destroy());
+        this.highlights = [];
     }
 }
 

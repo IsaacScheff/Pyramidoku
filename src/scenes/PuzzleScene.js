@@ -37,7 +37,8 @@ class PuzzleScene extends Phaser.Scene {
         ];
         this.numberOfMoves = 0;
 
-        this.highlights = [];
+        this.adjHighlights = [];
+        this.solvedHighlights = [];
     }
 
     init(data) {
@@ -141,7 +142,7 @@ class PuzzleScene extends Phaser.Scene {
                 this.highlightAdjacentTiles(this.cursorRow, this.cursorCol); 
             } else {
                 this.tileSwap();
-                this.clearHighlights(); 
+                this.clearAdjHighlights(); 
             }
         } 
 
@@ -151,7 +152,7 @@ class PuzzleScene extends Phaser.Scene {
             } else {
                 this.selectedGlyph = null;
                 this.selectedTile = null;
-                this.clearHighlights(); 
+                this.clearAdjHighlights(); 
             }
         }    
     }
@@ -387,10 +388,11 @@ class PuzzleScene extends Phaser.Scene {
         this.numberOfMoves++;
         this.moveTrackerText.text = `Moves: ${this.numberOfMoves}`;
         this.checkPuzzleSolution();
+        this.highlightSolvedRows(); 
     }
 
     highlightAdjacentTiles(row, col) {
-        this.clearHighlights(); 
+        this.clearAdjHighlights(); 
     
         const adjacentPositions = [
             { row, col: col - 1 }, // Left
@@ -422,14 +424,111 @@ class PuzzleScene extends Phaser.Scene {
                     highlight.scaleY = -1;
                     highlight.y += 6;
                 }
-                this.highlights.push(highlight); 
+                this.adjHighlights.push(highlight); 
             }
         });
     }
 
-    clearHighlights() {
-        this.highlights.forEach(highlight => highlight.destroy());
-        this.highlights = [];
+    clearAdjHighlights() {
+        this.adjHighlights.forEach(highlight => highlight.destroy());
+        this.adjHighlights = [];
+    }
+
+    highlightSolvedRows() {
+        this.clearSolvedHighlights(); 
+    
+        for (let row = 0; row < this.pyramidoku.length; row++) {
+            if (this.isRowSolved(row)) {
+                for (let col = 0; col < this.pyramidoku[row].length; col++) {
+                    const x = 128 + (col * 12) - (row * 12);
+                    let y = 33 + (row * 23);
+                    if (col % 2 !== 0) {
+                        y -= 6; 
+                    }
+    
+                    const solvedHighlight = this.add.image(x, y, 'solvedTile').setDepth(SOLVED_HIGHLIGHT_DEPTH);
+    
+                    if (col % 2 != 0) {
+                        solvedHighlight.scaleY = -1; 
+                        solvedHighlight.y += 6; 
+                    }
+    
+                    this.solvedHighlights.push(solvedHighlight); 
+                }
+            }
+        }
+    }
+
+    isRowSolved(row) {
+        const glyphCounts = {};
+    
+        // Check glyph counts in the row
+        for (let col = 0; col < this.pyramidoku[row].length; col++) {
+            const glyph = this.pyramidoku[row][col];
+            if (glyph !== null) {
+                const glyphKey = glyph.texture.key;
+    
+                if (glyphCounts[glyphKey]) {
+                    glyphCounts[glyphKey]++;
+                } else {
+                    glyphCounts[glyphKey] = 1;
+                }
+    
+                const maxAllowed = (row < 4) ? 1 : 2; // Rows 0-4: max 1, rows 5-7: max 2
+                if (glyphCounts[glyphKey] > maxAllowed) {
+                    return false; // Glyph count exceeds the limit
+                }
+            }
+        }
+    
+        // Check for adjacent matching glyphs in the row
+        for (let col = 0; col < this.pyramidoku[row].length; col++) {
+            const currentGlyph = this.pyramidoku[row][col];
+            if (currentGlyph !== null) {
+                const currentGlyphKey = currentGlyph.texture.key;
+    
+                const adjacentPositions = [
+                    { row, col: col - 1 },
+                    { row, col: col + 1 },
+                ];
+    
+                if (col % 2 === 0) {
+                    adjacentPositions.push({ row: row + 1, col: col + 1 });
+                }
+    
+                if (col % 2 === 1 && row > 0) {
+                    adjacentPositions.push({ row: row - 1, col: col - 1 });
+                }
+    
+                for (const pos of adjacentPositions) {
+                    if (
+                        pos.row >= 0 &&
+                        pos.row < this.pyramidoku.length &&
+                        pos.col >= 0 &&
+                        pos.col < this.pyramidoku[pos.row].length
+                    ) {
+                        const adjacentGlyph = this.pyramidoku[pos.row][pos.col];
+                        if (
+                            adjacentGlyph !== null &&
+                            adjacentGlyph.texture.key === currentGlyphKey
+                        ) {
+                            return false; // Found a matching adjacent glyph
+                        }
+                    }
+                }
+            }
+        }
+    
+        return true; // Row passes all checks
+    }
+
+    clearSolvedHighlights() {
+        this.solvedHighlights.forEach(highlight => {
+            if (highlight.texture && highlight.texture.key === 'solvedTile') {
+                highlight.destroy();
+            }
+        });
+        this.solvedHighlights = this.solvedHighlights.filter(highlight => highlight.texture.key !== 'solvedTile');
     }
 }
 

@@ -132,9 +132,17 @@ class PuzzleScene extends Phaser.Scene {
         this.renderPyramid();
 
         this.moveTrackerText = this.add.bitmapText(10, 10, 'pixelFont', 'Moves: 0', 8);
-        this.seedDisplayText = this.add.bitmapText(90, 210, 'pixelFont', `Seed#${this.seed}`, 8);
+        this.seedDisplayText = this.add.bitmapText(90, 210, 'pixelFont', `Puzzle#${this.seed}`, 8);
 
         this.renderGlyphMoveCounters();
+
+        this.initialTime = 300;
+        this.timeRemaining = this.initialTime;
+        this.timerText = null;
+        this.timerEvent = null;
+
+        this.timerText = this.add.bitmapText(170, 10, 'pixelFont', `Time: ${this.timeRemaining}`, 8);
+        this.startTimer();
     }
 
     update() {
@@ -582,24 +590,21 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     renderGlyphMoveCounters() {
-        const startX = 12; // X position for the counters
-        const startY = 30;  // Y position for the counters
-        const spacing = 18; // Vertical spacing between counters
+        const startX = 12; 
+        const startY = 30; 
+        const spacing = 18; 
     
         Object.entries(Hieroglyphs).forEach(([glyphName, glyphKey], index) => {
-            // Render the glyph image
             const glyphImage = this.add.image(startX, startY + index * spacing, glyphKey);
     
-            // Render the move count text
             const moveCountText = this.add.bitmapText(
-                startX + 10, // Offset to the right of the glyph image
-                startY + index * spacing - 5, // Align with the glyph image
+                startX + 10,
+                startY + index * spacing - 5, 
                 'pixelFont',
                 `${this.glyphMoveCounts[glyphKey]}`,
                 8
             );
     
-            // Store the reference to the move count text
             this.glyphMoveCountTexts[glyphKey] = moveCountText;
         });
     }
@@ -608,6 +613,31 @@ class PuzzleScene extends Phaser.Scene {
         if (this.glyphMoveCountTexts[glyphKey]) {
             this.glyphMoveCountTexts[glyphKey].text = `${this.glyphMoveCounts[glyphKey]}`;
         }
+    }
+
+    startTimer() {
+        this.timerEvent = this.time.addEvent({
+            delay: 1000, // 1 second
+            callback: this.updateTimer,
+            callbackScope: this,
+            loop: true
+        });
+    }
+    
+    updateTimer() {
+        this.timeRemaining--;
+        this.timerText.text = `Time: ${this.timeRemaining}`; 
+    
+        if (this.timeRemaining <= 0) {
+            this.timerExpired();
+        }
+    }
+    
+    timerExpired() {
+        this.timerEvent.destroy();
+    
+        this.puzzleIsSolved = true; 
+        this.timerText.text = "Time's up!";
     }
 }
 

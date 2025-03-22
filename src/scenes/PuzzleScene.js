@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-
+//#4152 is a quick test puzzle 
 const BACKGROUND_COLOR = "004858"
 const CURSOR_DEPTH = 4; 
 const TILE_DEPTH = 3;
@@ -404,6 +404,7 @@ class PuzzleScene extends Phaser.Scene {
         this.puzzleIsSolved = true;
         this.clearSolvedHighlights();
         this.pyramid.play("AnimatedPyramid", true);
+        this.stopTimer();
         return true;
     }
 
@@ -622,6 +623,13 @@ class PuzzleScene extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
+    }
+
+    stopTimer() {
+        if (this.timerEvent) {
+            this.timerEvent.destroy(); 
+            this.timerEvent = null; 
+        }
     }
     
     updateTimer() {

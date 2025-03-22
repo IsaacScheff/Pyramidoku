@@ -131,12 +131,13 @@ class PuzzleScene extends Phaser.Scene {
         this.fillPyramidRandomly();
         this.renderPyramid();
 
-        this.moveTrackerText = this.add.bitmapText(10, 10, 'pixelFont', 'Moves: 0', 8);
+        this.moveDisplayText = this.add.bitmapText(10, 10, 'pixelFont', 'Moves', 8);
+        this.moveTrackerText = this.add.bitmapText(10, 20, 'pixelFont', 'Total: 0', 8);
         this.seedDisplayText = this.add.bitmapText(90, 210, 'pixelFont', `Puzzle#${this.seed}`, 8);
 
         this.renderGlyphMoveCounters();
 
-        this.initialTime = 300;
+        this.initialTime = 200;
         this.timeRemaining = this.initialTime;
         this.timerText = null;
         this.timerEvent = null;
@@ -395,7 +396,6 @@ class PuzzleScene extends Phaser.Scene {
     
                     const maxAllowed = (row < 4) ? 1 : 2; // Rows 0-4: max 1, rows 5-7: max 2
                     if (glyphCounts[glyphKey] > maxAllowed) {
-                        console.log(row);
                         return false; // Glyph count exceeds the limit
                     }
                 }
@@ -592,7 +592,7 @@ class PuzzleScene extends Phaser.Scene {
 
     renderGlyphMoveCounters() {
         const startX = 12; 
-        const startY = 30; 
+        const startY = 40; 
         const spacing = 18; 
     
         Object.entries(Hieroglyphs).forEach(([glyphName, glyphKey], index) => {

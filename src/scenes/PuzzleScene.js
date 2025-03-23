@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-//#4152 is a quick test puzzle 
+//#5259 is a quick test puzzle 
 const BACKGROUND_COLOR = "004858"
 const CURSOR_DEPTH = 4; 
 const TILE_DEPTH = 3;
@@ -54,6 +54,10 @@ class PuzzleScene extends Phaser.Scene {
         };
 
         this.glyphMoveCountTexts = {};
+
+        this.quitConfirmationBox = null;
+        this.quitOptions = [];
+        this.selectedQuitOption = 0;
     }
 
     init(data) {
@@ -95,6 +99,8 @@ class PuzzleScene extends Phaser.Scene {
     }
 
     create() {
+        this.resetPuzzle();
+
         this.pyramid = this.add.sprite(128, 110, 'PyramidSolved');
         this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
         this.cursorCol = 4;
@@ -132,7 +138,7 @@ class PuzzleScene extends Phaser.Scene {
         this.renderPyramid();
 
         this.moveDisplayText = this.add.bitmapText(10, 10, 'pixelFont', 'Moves', 8);
-        this.moveTrackerText = this.add.bitmapText(10, 20, 'pixelFont', 'Total: 0', 8);
+        this.moveTrackerText = this.add.bitmapText(10, 20, 'pixelFont', 'TOTAL: 0', 8);
         this.seedDisplayText = this.add.bitmapText(90, 210, 'pixelFont', `Puzzle#${this.seed}`, 8);
 
         this.renderGlyphMoveCounters();
@@ -144,9 +150,28 @@ class PuzzleScene extends Phaser.Scene {
 
         this.timerText = this.add.bitmapText(170, 10, 'pixelFont', `Time: ${this.timeRemaining}`, 8);
         this.startTimer();
+
+        this.initQuitConfirmationBox();
     }
 
-    update() {
+ update() {
+    if (this.quitConfirmationBox.visible) {
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keys.left)) {
+            this.selectedQuitOption = Math.max(0, this.selectedQuitOption - 1);
+            this.highlightQuitOption();
+        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.keys.right)) {
+            this.selectedQuitOption = Math.min(1, this.selectedQuitOption + 1);
+            this.highlightQuitOption();
+        }
+
+        if (Phaser.Input.Keyboard.JustDown(this.keys.START)) {
+            if (this.selectedQuitOption === 0) {
+                this.scene.start('MainMenuScene');
+            } else {
+                this.hideQuitConfirmationBox();
+            }
+        }
+    } else {
         if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.keys.left)) {
             this.moveCursor("Left");
             this.placeCursor();
@@ -161,8 +186,8 @@ class PuzzleScene extends Phaser.Scene {
             this.placeCursor();
         }
 
-        if(Phaser.Input.Keyboard.JustDown(this.keys.A)) {
-            if(this.selectedGlyph == null) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.A)) {
+            if (this.selectedGlyph == null) {
                 this.selectedTile = [this.cursorRow, this.cursorCol];
                 this.selectedGlyph = this.pyramidoku[this.cursorRow][this.cursorCol];
                 this.highlightAdjacentTiles(this.cursorRow, this.cursorCol); 
@@ -172,17 +197,21 @@ class PuzzleScene extends Phaser.Scene {
             }
         } 
 
-        if(Phaser.Input.Keyboard.JustDown(this.keys.B)) {
-            if(this.selectedGlyph == null) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.B)) {
+            if (this.selectedGlyph == null) {
                 this.rotateRow();
             } else {
                 this.selectedGlyph = null;
                 this.selectedTile = null;
                 this.clearAdjHighlights(); 
             }
-        }    
-    }
+        }
 
+        if (Phaser.Input.Keyboard.JustDown(this.keys.START)) {
+            this.showQuitConfirmationBox();
+        }
+    }
+}
     moveCursor(direction) {
         const numRows = 8;
         let newRow = this.cursorRow;
@@ -249,7 +278,8 @@ class PuzzleScene extends Phaser.Scene {
             left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
             right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
             A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
-            B: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H)
+            B: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H),
+            START: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         };
     }
 
@@ -646,6 +676,75 @@ class PuzzleScene extends Phaser.Scene {
     
         this.puzzleIsSolved = true; 
         this.timerText.text = "Time's up!";
+    }
+
+    initQuitConfirmationBox() {
+        const centerX = this.cameras.main.width / 2;
+        const centerY = this.cameras.main.height / 2;
+
+        this.quitConfirmationBox = this.add.rectangle(centerX, centerY, 200, 100, 0x000000).setDepth(10).setVisible(false);
+
+        this.quitText = this.add.bitmapText(centerX - 80, centerY - 30, 'pixelFont', 'Quit Puzzle?', 8).setDepth(11).setVisible(false);
+
+        this.quitOptions = [
+            this.add.bitmapText(centerX - 50, centerY, 'pixelFont', 'Yes', 8).setDepth(11).setVisible(false),
+            this.add.bitmapText(centerX + 30, centerY, 'pixelFont', 'No', 8).setDepth(11).setVisible(false)
+        ];
+
+        this.highlightQuitOption();
+    }
+
+    highlightQuitOption() {
+        this.quitOptions.forEach((option, index) => {
+            option.setTint(index === this.selectedQuitOption ? 0xf8b800 : 0xffffff); 
+        });
+    }
+
+    showQuitConfirmationBox() {
+        this.quitConfirmationBox.setVisible(true);
+        this.quitText.setVisible(true);
+        this.quitOptions.forEach(option => option.setVisible(true));
+        this.selectedQuitOption = 0;
+        this.highlightQuitOption();
+    }
+
+    hideQuitConfirmationBox() {
+        this.quitConfirmationBox.setVisible(false);
+        this.quitText.setVisible(false);
+        this.quitOptions.forEach(option => option.setVisible(false));
+    }
+
+    resetPuzzle() {
+        this.pyramidoku = [
+            [null],
+            [null, null, null],
+            [null, null, null, null, null],
+            [null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+        ];
+
+        for (let row = 0; row < this.pyramidoku.length; row++) {
+            for (let col = 0; col < this.pyramidoku[row].length; col++) {
+                if (this.pyramidoku[row][col] !== null) {
+                    this.pyramidoku[row][col].destroy(); 
+                    this.pyramidoku[row][col] = null; 
+                }
+            }
+        }
+
+        this.puzzleIsSolved = false;
+        this.numberOfMoves = 0;
+        this.selectedTile = null;
+        this.selectedGlyph = null;
+        this.adjHighlights = [];
+        this.solvedHighlights = [];
+
+        for (const glyph of Object.values(Hieroglyphs)) {
+            this.glyphMoveCounts[glyph] = 0;
+        }
     }
 }
 

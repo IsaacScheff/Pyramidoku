@@ -8,6 +8,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
     preload() {
         this.load.bitmapFont('pixelFont', 'assets/font/pixel_font.png', 'assets/font/pixel.xml');
+        this.load.image('selector', 'assets/images/selector.png'); 
     }
 
     create() {
@@ -17,7 +18,7 @@ export default class MainMenuScene extends Phaser.Scene {
             this.add.bitmapText(40, 130, 'pixelFont', 'Input Puzzle #', 8),
         ];
 
-        this.selector = this.add.bitmapText(30, 105, 'pixelFont', '>', 8);
+        this.selector = this.add.image(30, 110, 'selector').setOrigin(0, 0.5);
         this.selectedIndex = 0;
 
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -79,7 +80,9 @@ export default class MainMenuScene extends Phaser.Scene {
         if (this.selectedIndex < 0) this.selectedIndex = this.options.length - 1;
         else if (this.selectedIndex >= this.options.length) this.selectedIndex = 0;
 
-        this.selector.setY(this.options[this.selectedIndex].y);
+        const selectedOption = this.options[this.selectedIndex];
+        this.selector.setY(selectedOption.y + 6); 
+        this.selector.setX(selectedOption.x - 10);
     }
 
     confirmSelection() {

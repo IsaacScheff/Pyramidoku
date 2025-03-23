@@ -137,7 +137,7 @@ class PuzzleScene extends Phaser.Scene {
 
         this.renderGlyphMoveCounters();
 
-        this.initialTime = 200;
+        this.initialTime = 180;
         this.timeRemaining = this.initialTime;
         this.timerText = null;
         this.timerEvent = null;
@@ -439,7 +439,7 @@ class PuzzleScene extends Phaser.Scene {
 
     incrementMoveNumber() {
         this.numberOfMoves++;
-        this.moveTrackerText.text = `Moves: ${this.numberOfMoves}`;
+        this.moveTrackerText.text = `Total: ${this.numberOfMoves}`;
         this.checkPuzzleSolution();
         this.highlightSolvedRows(); 
     }

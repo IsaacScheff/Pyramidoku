@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-//#5259 is a quick test puzzle 
+//#5259 is a quick test puzzle, 4152 slightly harder
 const BACKGROUND_COLOR = "004858"
 const CURSOR_DEPTH = 4; 
 const TILE_DEPTH = 3;
@@ -143,7 +143,7 @@ class PuzzleScene extends Phaser.Scene {
 
         this.renderGlyphMoveCounters();
 
-        this.initialTime = 180;
+        this.initialTime = 145;
         this.timeRemaining = this.initialTime;
         this.timerText = null;
         this.timerEvent = null;

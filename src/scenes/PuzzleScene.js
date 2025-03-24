@@ -164,7 +164,7 @@ class PuzzleScene extends Phaser.Scene {
             this.highlightQuitOption();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.START)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.A)) {
             if (this.selectedQuitOption === 0) {
                 this.scene.start('MainMenuScene');
             } else {
